@@ -1,21 +1,29 @@
-#Python program utilizing ipgelocation.io to extract geolocation
 import requests
+import ipaddress
 
-while True:
-    try:
-        ip_address = input(">_Enter IP Here: ")
-        URL = "https://api.ipgeolocation.io/ipgeo?apiKey=INSERT_API_KEY_HERE!!!!&ip=" + ip_address
 
-        r = requests.get(URL)
-        response = r.json()
+with open('ips.txt', 'r') as ipf:
+    iplist = ipf.readlines()
 
-        org =response["organization"]
-        country = response["country_name"]
+def geo_locate():
+        for ip in iplist:
+            if '/' in ip:
+                addrs = ipaddress.ip_network(ip.replace("\n",''))
+                for addr in addrs:
+                    response = requests.get("https://api.iplocation.net/?ip=" + str(addr))
+                    details = response.json()
+                    print("=====================================")
+                    print('IP Address: '+ details['ip']) 
+                    print('Country: ' + details['country_name'])
+                    print('Organization: ' + details['isp'])
+                    print("=====================================")
+            else:
+                response = requests.get("https://api.iplocation.net/?ip=" + ip.rstrip())
+                details = response.json()
+                print("=====================================")
+                print('IP Address: '+ details['ip']) 
+                print('Country: ' + details['country_name'])
+                print('Organization: ' + details['isp'])
+                print("=====================================")
 
-        #details = print("[*] The IP " + str(ip_address) + " is owned by " + str(org) + " and located in " + str(country))
-        print('Organization:' + str(org))
-        print('Country:' + str(country))
-        print('-----------------------------------------')
-    except Exception as e:
-        print("[?]\tpython error",e)
-
+geo_locate()
